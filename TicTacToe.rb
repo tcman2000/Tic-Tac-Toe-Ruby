@@ -43,7 +43,7 @@ end
 # class for the game board
 class Board
   def initialize
-    @numbered_board = ['X', 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    @numbered_board = [0, 1, 2, 3, 4, 5, 6, 7, 8]
   end
 
   def display_board
@@ -74,10 +74,18 @@ class Board
     end
   end
 
-  private
-
-  def check_for_winner(symbol)
+  def check_for_winner
+    result = false
+    for i in 0..2 do
+      if @numbered_board[i*3] == @numbered_board[i*3 + 1] && @numbered_board[i*3] == @numbered_board[i*3 + 2]
+        result = true
+      end
+    end
+    if (@numbered_board[0] == @numbered_board[4] && @numbered_board[0] == @numbered_board[8]) || (@numbered_board[2] == @numbered_board[4] && @numbered_board[2] == @numbered_board[6])
+      result = true
+    end
     
+    result
   end
 end
 
@@ -107,12 +115,12 @@ game_board.display_board
 puts 'Take turns marking a square by entering the square number when prompted.'
 puts "For example: '#{player_one.display_name}'s turn: 1'"
 
-
 play_again = true
 # While loop for playing multiple times
 while play_again
   # until loop for game rounds
   game_over = false
+  game_board.display_board
   until game_over
     turn_over = false
     until turn_over
@@ -121,13 +129,21 @@ while play_again
       game_board.display_board
     end
     turn_over = false
+    if game_board.check_for_winner
+      turn_over = true
+      game_over = true
+      puts "#{player_one.display_name} has won"
+    end
     until turn_over
       print "#{player_two.display_name}'s turn: "
       turn_over = game_board.mark_square(gets.chomp.to_i, 2)
       game_board.display_board
+      if game_board.check_for_winner
+        turn_over = true;
+        game_over = true;
+        puts "#{player_two.display_name} has won"
+      end
     end
-
-    game_over = true
   end
 
   # Ask user if they'd like to play again
@@ -135,5 +151,7 @@ while play_again
   response = gets.chomp
   if response != 'y'
     play_again = false
+  else
+    game_board = Board.new
   end
 end
